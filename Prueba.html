@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>ListaNX</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 80%;
+      margin: 0 auto;
+      text-align: center;
+      padding-top: 50px;
+    }
+
+    h1 {
+      font-size: 36px;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 30px;
+    }
+
+    .form-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .input-container {
+      width: 250px;
+      margin: 0 20px 20px 0;
+      text-align: left;
+    }
+
+    .input-container label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .input-container input,
+    .input-container select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #555;
+      border-radius: 5px;
+      background-color: #444;
+      color: #fff;
+    }
+
+    .submit-btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #f00;
+      color: #fff;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .info {
+      text-align: left;
+    }
+
+    .info ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .info li {
+      background-color: #333;
+      border: 2px solid #555;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      width: 60%;
+      position: relative;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .info .eliminar-btn {
+      background-color: #f00;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    /* Copyright notice */
+    .copyright {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ListaNX</h1>
+
+    <div class="form-container">
+      <div class="input-container">
+        <label for="nombreInput">Nombre:</label>
+        <input type="text" id="nombreInput" placeholder="Ingrese el nombre">
+      </div>
+      <div class="input-container">
+        <label for="cursoSelect">Curso:</label>
+        <select id="cursoSelect">
+          <option value="7A">7A</option>
+          <option value="7B">7B</option>
+          <option value="7C">7C</option>
+          <option value="8A">8A</option>
+          <option value="8B">8B</option>
+          <option value="8C">8C</option>
+        </select>
+      </div>
+      <div class="input-container">
+        <label for="suscripcionSelect">Suscripción:</label>
+        <select id="suscripcionSelect">
+          <option value="Básica">Básica</option>
+          <option value="Plus">Plus</option>
+        </select>
+      </div>
+      <button class="submit-btn" id="guardarBtn">Guardar</button>
+    </div>
+
+    <div class="info" id="infoContainer">
+      <ul>
+        <!-- Información guardada se mostrará aquí -->
+      </ul>
+    </div>
+  </div>
+
+  <div class="copyright">
+    <p>©LimikuNX</p>
+  </div>
+
+  <script>
+    // Obtener elementos del DOM
+    const nombreInput = document.getElementById('nombreInput');
+    const cursoSelect = document.getElementById('cursoSelect');
+    const suscripcionSelect = document.getElementById('suscripcionSelect');
+    const guardarBtn = document.getElementById('guardarBtn');
+    const infoContainer = document.getElementById('infoContainer');
+
+    // Función para agregar un nuevo elemento a la lista
+    function agregarElemento(nombre, curso, suscripcion) {
+      const item = document.createElement('li');
+
+      item.innerHTML = `
+        <p><strong>Nombre:</strong> ${nombre}</p>
+        <p><strong>Curso:</strong> ${curso}</p>
+        <p><strong>Suscripción:</strong> ${suscripcion}</p>
+        <button class="eliminar-btn">Eliminar</button>
+      `;
+
+      infoContainer.querySelector('ul').appendChild(item);
+    }
+
+    // Función para eliminar un elemento de la lista
+    function eliminarElemento(e) {
+      if (e.target.classList.contains('eliminar-btn')) {
+        e.target.parentElement.remove();
+        guardarInformacion();
+      }
+    }
+
+    // Función para guardar la información en localStorage
+    function guardarInformacion() {
+      const items = infoContainer.querySelectorAll('li');
+      const infoArray = [];
+
+      items.forEach(item => {
+        const nombre = item.querySelector('p:nth-child(1)').textContent.slice(9);
+        const curso = item.querySelector('p:nth-child(2)').textContent.slice(8);
+        const suscripcion = item.querySelector('p:nth-child(3)').textContent.slice(14);
+        infoArray.push({ nombre, curso, suscripcion });
+      });
+
+      localStorage.setItem('listaNX', JSON.stringify(infoArray));
+    }
+
+    // Función para cargar la información almacenada en localStorage al cargar la página
+    function cargarInformacion() {
+      const infoGuardada = JSON.parse(localStorage.getItem('listaNX'));
+
+      if (infoGuardada) {
+        infoGuardada.forEach(info => {
+          agregarElemento(info.nombre, info.curso, info.suscripcion);
+        });
+      }
+    }
+
+    // Evento clic en botón "Guardar"
+    guardarBtn.addEventListener('click', () => {
+      const nombre = nombreInput.value;
+      const curso = cursoSelect.value;
+      const suscripcion = suscripcionSelect.value;
+
+      if (nombre !== '') {
+        agregarElemento(nombre, curso, suscripcion);
+        guardarInformacion();
+        nombreInput.value = '';
+        cursoSelect.selectedIndex = 0;
+        suscripcionSelect.selectedIndex = 0;
+      }
+    });
+
+    // Evento clic en botón "Eliminar"
+    infoContainer.addEventListener('click', eliminarElemento);
+
+    // Cargar información al cargar la página
+    cargarInformacion();
+  </script>
+</body>
+</html>
